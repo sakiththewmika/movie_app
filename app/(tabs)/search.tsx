@@ -7,6 +7,7 @@ import useFetch from "@/services/useFetch";
 import { fetchMovies } from "@/services/api";
 import MovieCard from "@/components/MovieCard";
 import { useEffect, useState } from "react";
+import { updateSearchCount } from "@/services/appwrite";
 
 export default function Search() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -26,6 +27,10 @@ export default function Search() {
         const timeoutId = setTimeout(async () => {
             if (searchQuery.trim()) {
                 await loadMovies();
+                if (movies[0] && movies.length > 0) {
+                    // Update search count in Appwrite
+                    await updateSearchCount(searchQuery, movies[0]);
+                }
             } else {
                 reset();
             }
@@ -84,7 +89,10 @@ export default function Search() {
                             )}
 
                             {!moviesLoading && !moviesError && searchQuery.trim() && movies?.length > 0 && (
-                                <Text className="text-xl text-white font-bold">{searchQuery}</Text>
+                                <Text className="text-xl text-white font-bold">
+                                    Search Results for{" "}
+                                    <Text className="text-accent">{searchQuery}</Text>
+                                </Text>
                             )}
                         </>
                     }
